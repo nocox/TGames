@@ -16,10 +16,13 @@ repositories {
     mavenCentral()
 }
 
+val koin_version= "3.2.0-beta-1"
+
 dependencies {
     implementation("org.springframework.boot:spring-boot-starter-web")
     implementation("org.jetbrains.kotlin:kotlin-reflect")
     implementation("org.jetbrains.kotlin:kotlin-stdlib-jdk8")
+    implementation("io.insert-koin:koin-core:$koin_version")
     providedRuntime("org.springframework.boot:spring-boot-starter-tomcat")
     testImplementation("org.springframework.boot:spring-boot-starter-test")
 }

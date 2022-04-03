@@ -1,8 +1,50 @@
 package com.nocox.tgames.updown
 
-import com.nocox.tgames.updown.usecase.*
+import com.nocox.tgames.updown.domain.repository.BaseTrumpRepository
+import com.nocox.tgames.updown.domain.repository.CallHistoryRepository
+import com.nocox.tgames.updown.domain.repository.DrawHistoryRepository
+import com.nocox.tgames.updown.domain.repository.TargetTrumpRepository
+import com.nocox.tgames.updown.domain.repository.UpDownCallRepository
+import com.nocox.tgames.updown.usecase.CallUpDownUseCase
+import com.nocox.tgames.updown.usecase.CompareTrumpUseCase
+import com.nocox.tgames.updown.usecase.DrawBaseTrumpUseCase
+import com.nocox.tgames.updown.usecase.DrawTargetTrumpUseCase
+import com.nocox.tgames.updown.usecase.GetBaseTrumpUseCase
+import com.nocox.tgames.updown.usecase.GetGameResultUseCase
+import org.koin.core.component.KoinComponent
+import org.koin.core.component.inject
+import org.koin.core.context.startKoin
+import org.koin.dsl.module
 
 fun main() {
+
+    val implModule = module {
+        single { UpDownGameRepositoryInlineStoreRepositoryImpl() }
+
+        single<BaseTrumpRepository> { UpDownGameRepositoryInlineStoreRepositoryImpl() }
+        single<CallHistoryRepository> { UpDownGameRepositoryInlineStoreRepositoryImpl() }
+        single<DrawHistoryRepository> { UpDownGameRepositoryInlineStoreRepositoryImpl() }
+        single<TargetTrumpRepository> { UpDownGameRepositoryInlineStoreRepositoryImpl() }
+        single<UpDownCallRepository> { UpDownGameRepositoryInlineStoreRepositoryImpl() }
+
+        single { GetBaseTrumpUseCase(get()) }
+        single { DrawBaseTrumpUseCase(get(), get()) }
+        single { CallUpDownUseCase(get(), get()) }
+        single { DrawTargetTrumpUseCase(get(), get()) }
+        single { CompareTrumpUseCase(get(), get()) }
+        single { GetGameResultUseCase(get(), get(), get()) }
+    }
+
+    startKoin {
+        // use Koin logger
+        printLogger()
+        // declare modules
+        modules(implModule)
+        startCliUpDownGame()
+    }
+}
+
+fun startCliUpDownGame() {
     val cliController = CLIController()
 
     cliController.drawBaseTrump()
@@ -28,15 +70,14 @@ fun main() {
     }
 }
 
-class CLIController() {
-    private val repositoryImpl = UpDownGameRepositoryInlineStoreRepositoryImpl()
-
-    private val drawBaseTrumpUseCase = DrawBaseTrumpUseCase(repositoryImpl, repositoryImpl)
-    private val getBaseTrumpUseCase = GetBaseTrumpUseCase(repositoryImpl)
-    private val callUpDownUseCase = CallUpDownUseCase(repositoryImpl, repositoryImpl)
-    private val drawTargetTrumpUseCase = DrawTargetTrumpUseCase(repositoryImpl, repositoryImpl)
-    private val compareTrumpUseCase = CompareTrumpUseCase(repositoryImpl, repositoryImpl)
-    private val getGameResultUseCase = GetGameResultUseCase(repositoryImpl, repositoryImpl, repositoryImpl)
+class CLIController : KoinComponent {
+    private val repositoryImpl by inject<UpDownGameRepositoryInlineStoreRepositoryImpl>()
+    private val drawBaseTrumpUseCase by inject<DrawBaseTrumpUseCase>()
+    private val getBaseTrumpUseCase by inject<GetBaseTrumpUseCase>()
+    private val callUpDownUseCase by inject<CallUpDownUseCase>()
+    private val drawTargetTrumpUseCase by inject<DrawTargetTrumpUseCase>()
+    private val compareTrumpUseCase by inject<CompareTrumpUseCase>()
+    private val getGameResultUseCase by inject<GetGameResultUseCase>()
 
     fun drawBaseTrump() {
         drawBaseTrumpUseCase.invoke()
